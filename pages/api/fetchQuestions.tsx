@@ -1,78 +1,25 @@
-import { useEffect, useReducer, useRef } from "react";
-
-interface State<T> {
-    data?: T,
-    error?: Error
+export default function fetchQuestions(setter: (x: Question[]) => void){
+    const url = "https://opentdb.com/api.php?amount=10&category=9&difficulty=easy&type=multiple"
+    const response:Question[] = []
+    fetch(url)
+    .then(request => request.json())
+    .then(data => {
+        if (data.response_code != 0) throw console.error("API ERROR")
+        for(let question of data.results){
+            response.push(new Question(question.question, question.correct_answer, question.incorrect_answers))
+        }
+        setter(response)
+    })
 }
 
-type Cache<T> = Record<string, T>
+export class Question {
+    public readonly question: string
+    public readonly correct_answer: string
+    public readonly incorrect_answers: string[]
 
-type Action<T> = | {type: 'loading'} | {type: 'fetched', payload: T} | {type: 'error', payload: Error}
-
-export function useFetch<T = unknown>(
-    url?: string,
-    options?: RequestInit,
-): State<T> {
-    const cache = useRef<Cache<T>>({})
-
-    const cancelRequest = useRef<boolean>(false)
-
-    const initialState : State<T> = {
-        data: undefined,
-        error: undefined,
+    constructor(question:string, correct_answer:string, incorrect_answers:string[]){
+        this.question = question
+        this.correct_answer = correct_answer
+        this.incorrect_answers = incorrect_answers
     }
-
-    const fetchReducer = (state: State<T>, action: Action<T>): State<T> => {
-        switch (action.type){
-            case 'loading':
-                return {...initialState}
-            case 'fetched':
-                return {...initialState, data: action.payload}
-            case 'error':
-                return {...initialState, error: action.payload}
-            default:
-                return state
-        }
-    }
-
-    const [state, dispatch] = useReducer(fetchReducer, initialState)
-
-    useEffect(() => {
-        if(!url) return
-
-        cancelRequest.current = false
-        const fetchData = async ()=> {
-            dispatch({type: 'loading'})
-
-            if(cache.current[url]){
-                dispatch({type: 'fetched', payload: cache.current[url]})
-                return
-            }
-
-            try{
-                const response = await fetch(url, options)
-                if(!response.ok){
-                    throw new Error(response.statusText)
-                }
-
-                const data = (await response.json()) as T
-                cache.current[url] = data
-                if(cancelRequest.current) return
-
-                dispatch({type: 'fetched', payload: data})
-            } catch (error){
-                if(cancelRequest.current) return
-                dispatch({type: 'error', payload: error as Error});
-            }
-        }
-
-        void fetchData()
-
-        return ()=> {
-            cancelRequest.current = true
-        }
-    }, [url])
-
-    return state
 }
-
