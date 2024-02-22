@@ -23,10 +23,10 @@ export default function Home() {
         {questions.length === 0 ? "loading..." : questions[0].question}
       </h2>
       <div className="grid grid-cols-2 grid-rows-2 gap-5">
-        <Card className="bg-red-100 hover:bg-red-300" answer={questions.length === 0 ? "loading..." : questions[0].correct_answer}/>
-        <Card className="bg-blue-100 hover:bg-blue-300"answer={questions.length === 0 ? "loading..." : questions[0].incorrect_answers[0]}/>
-        <Card className="bg-yellow-100 hover:bg-yellow-300" answer={questions.length === 0 ? "loading..." : questions[0].incorrect_answers[1]}/>
-        <Card className="bg-green-100 hover:bg-green-300" answer={questions.length === 0 ? "loading..." : questions[0].incorrect_answers[2]}/>
+        <Card className="bg-red-100 hover:bg-red-300" answer={questions.length === 0 ? "loading..." : questions[0].allAnswers[0]}/>
+        <Card className="bg-blue-100 hover:bg-blue-300"answer={questions.length === 0 ? "loading..." : questions[0].allAnswers[1]}/>
+        <Card className="bg-yellow-100 hover:bg-yellow-300" answer={questions.length === 0 ? "loading..." : questions[0].allAnswers[2]}/>
+        <Card className="bg-green-100 hover:bg-green-300" answer={questions.length === 0 ? "loading..." : questions[0].allAnswers[3]}/>
       </div>
     </div>
   );
